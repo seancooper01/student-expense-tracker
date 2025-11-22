@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useMemo } from 'react';
 import {
   SafeAreaView,
   View,
@@ -18,7 +18,35 @@ export default function ExpenseScreen() {
   const [amount, setAmount] = useState('');
   const [category, setCategory] = useState('');
   const [note, setNote] = useState('');
+  const [date, setDate] = useState(new Date().toISOString().slice(0,10));
+  const [filter, setFilter] = useState('ALL'); // Filter State: ALL | WEEK | MONTH 
 
+  // Helper Functions 
+   const filteredExpenses = useMemo(() => {
+    const now = new Date();
+
+    return expenses.filter((e) => {
+      if (filter === 'ALL') return true;
+
+      if (!e.date) return false;
+      const d = new Date(e.date);
+      if (Number.isNaN(d.getTime())) return false;
+
+      if (filter === 'WEEK') {
+        const diffDays = (now - d) / (1000 * 60 * 60 * 24);
+        return diffDays >= 0 && diffDays < 7; // last 7 days
+      }
+
+      if (filter === 'MONTH') {
+        return (
+          d.getFullYear() === now.getFullYear() &&
+          d.getMonth() === now.getMonth()
+        );
+      }
+
+      return true;
+    });
+  }, [expenses, filter]);
 
   const loadExpenses = async () => {
     const rows = await db.getAllAsync(
@@ -44,13 +72,14 @@ export default function ExpenseScreen() {
     }
 
     await db.runAsync(
-      'INSERT INTO expenses (amount, category, note) VALUES (?, ?, ?);',
-      [amountNumber, trimmedCategory, trimmedNote || null]
+      'INSERT INTO expenses (amount, category, note, date) VALUES (?, ?, ?, ?);',
+      [amountNumber, trimmedCategory, trimmedNote || null, date]
     );
 
     setAmount('');
     setCategory('');
     setNote('');
+    setDate(new Date().toISOString().slice(0,10)); 
 
     loadExpenses();
   };
@@ -64,6 +93,7 @@ export default function ExpenseScreen() {
       <View style={{ flex: 1 }}>
         <Text style={styles.expenseAmount}>${Number(item.amount).toFixed(2)}</Text>
         <Text style={styles.expenseCategory}>{item.category}</Text>
+        <Text style={styles.expenseDate}>{item.date}</Text>
         {item.note ? <Text style={styles.expenseNote}>{item.note}</Text> : null}
       </View>
 
@@ -76,12 +106,13 @@ export default function ExpenseScreen() {
     async function setup() {
       await db.execAsync(`
         CREATE TABLE IF NOT EXISTS expenses (
-          id INTEGER PRIMARY KEY AUTOINCREMENT,
-          amount REAL NOT NULL,
-          category TEXT NOT NULL,
-          note TEXT
-        );
-      `);
+         id INTEGER PRIMARY KEY AUTOINCREMENT,
+         amount REAL NOT NULL,
+         category TEXT NOT NULL,
+         note TEXT,
+         date TEXT NOT NULL
+      );
+    `);
 
       await loadExpenses();
     }
@@ -115,11 +146,49 @@ export default function ExpenseScreen() {
           value={note}
           onChangeText={setNote}
         />
+        <TextInput
+          style={styles.input}
+          placeholder='Date (YYYY-MM-DD)'
+          placeholderTextColor= "#9ca3af"
+          value={date}
+          onChangeText={setDate}
+          />
         <Button title="Add Expense" onPress={addExpense} />
+      </View>
+      <View style={styles.filterRow}>
+        <TouchableOpacity
+          style={[
+            styles.filterButton,
+            filter === 'ALL' && styles.filterButtonActive,
+          ]}
+          onPress={() => setFilter('ALL')}
+        >
+          <Text style={styles.filterButtonText}>All</Text>
+        </TouchableOpacity>
+
+        <TouchableOpacity
+          style={[
+            styles.filterButton,
+            filter === 'WEEK' && styles.filterButtonActive,
+          ]}
+          onPress={() => setFilter('WEEK')}
+        >
+          <Text style={styles.filterButtonText}>This Week</Text>
+        </TouchableOpacity>
+
+        <TouchableOpacity
+          style={[
+            styles.filterButton,
+            filter === 'MONTH' && styles.filterButtonActive,
+          ]}
+          onPress={() => setFilter('MONTH')}
+        >
+          <Text style={styles.filterButtonText}>This Month</Text>
+        </TouchableOpacity>
       </View>
 
       <FlatList
-        data={expenses}
+        data={filteredExpenses}
         keyExtractor={(item) => item.id.toString()}
         renderItem={renderExpense}
         ListEmptyComponent={
@@ -190,4 +259,34 @@ export default function ExpenseScreen() {
     marginTop: 12,
     fontSize: 12,
   },
-});
+  expenseDate: {
+  fontSize: 12,
+  color: '#e5e7eb',
+  },  
+  filterRow: {
+  flexDirection: 'row',
+  justifyContent: 'space-between',
+  marginBottom: 12,
+  marginTop: 8,
+},
+  filterButton: {
+  flex: 1,
+  marginHorizontal: 4,
+  paddingVertical: 8,
+  borderRadius: 8,
+  borderWidth: 1,
+  borderColor: '#4b5563',
+  alignItems: 'center',
+  backgroundColor: '#111827',
+},
+  filterButtonActive: {
+  backgroundColor: '#4f46e5',
+  borderColor: '#6366f1',
+},
+  filterButtonText: {
+  color: '#e5e7eb',
+  fontWeight: '600',
+  fontSize: 12,
+},
+ },
+);
