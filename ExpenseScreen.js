@@ -48,6 +48,25 @@ export default function ExpenseScreen() {
     });
   }, [expenses, filter]);
 
+  // Overall total 
+  const totalSpending = useMemo (() => {
+    return filteredExpenses.reduce((sum, e) => {
+      const amt = Number(e.amount) || 0; 
+      return sum + amt; 
+    }, 0);
+  }, [filteredExpenses]);
+
+  // Totals by category 
+  const categoryTotals = useMemo(() => {
+    const map = {};
+    filteredExpenses.forEach((e) => {
+      const key = e.category || "Uncategorized";
+      const amt = Number(e.amount) || 0;
+      map[key] = (map[key] || 0) + amt; 
+    });
+    return map;
+  }, [filteredExpenses]);
+
   const loadExpenses = async () => {
     const rows = await db.getAllAsync(
       'SELECT * FROM expenses ORDER BY id DESC;'
@@ -187,6 +206,28 @@ export default function ExpenseScreen() {
         </TouchableOpacity>
       </View>
 
+      <View style={styles.totalsBox}>
+        <Text style={styles.totalsHeading}>
+          Total Spending{' '}
+          {filter === 'ALL'
+            ? '(All)'
+            : filter === 'WEEK'
+            ? '(This Week)'
+            : '(This Month)'}
+          : ${totalSpending.toFixed(2)}
+        </Text>
+
+        {Object.keys(categoryTotals).length > 0 && (
+          <View style={styles.totalsList}>
+            {Object.entries(categoryTotals).map(([cat, amt]) => (
+              <Text key={cat} style={styles.totalsItem}>
+                {cat}: ${amt.toFixed(2)}
+              </Text>
+            ))}
+          </View>
+        )}
+      </View>
+
       <FlatList
         data={filteredExpenses}
         keyExtractor={(item) => item.id.toString()}
@@ -288,5 +329,26 @@ export default function ExpenseScreen() {
   fontWeight: '600',
   fontSize: 12,
 },
- },
-);
+totalsBox: {
+    marginBottom: 12,
+    paddingVertical: 8,
+    paddingHorizontal: 10,
+    borderRadius: 8,
+    backgroundColor: '#020617',
+    borderWidth: 1,
+    borderColor: '#4b5563',
+},
+  totalsHeading: {
+    color: '#e5e7eb',
+    fontWeight: '700',
+    marginBottom: 4,
+},
+totalsList: {
+    marginTop: 4,
+},
+totalsItem: {
+    color: '#cbd5f5',
+    fontSize: 12,
+},
+
+},);
