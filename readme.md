@@ -46,7 +46,6 @@ npx expo start
   ```
 
   ## 📊 Analytics Included
-  `
 	•	Total spending dynamically updates based on filter
 	•	Spending by category
 	•	All totals update when:
@@ -56,7 +55,6 @@ npx expo start
 	•	Filters change
 
 ### ✏️ Editing Expenses
-`
 	•	Tap an existing expense row
 	•	The form auto-fills with the expense data
 	•	Modify any fields
@@ -67,7 +65,6 @@ SET amount = ?, category = ?, note = ?, date = ?
 WHERE id = ?;
 
 ### 🐞 Known Issues / Limitations
-`
 	•	Date input uses a plain text field (no date-picker UI)
 	•	Category totals are based on user-entered strings
 	•	e.g., Food and food count as two categories
@@ -76,7 +73,6 @@ WHERE id = ?;
 	•	No validation for invalid date formats (e.g., “abc123”)
 
 ### 👨‍💻 Technology Used
-`
 	•	React Native
 	•	Expo
 	•	SQLite via expo-sqlite
