@@ -60,10 +60,11 @@ npx expo start
 	•	Modify any fields
 	•	Press Save Changes
 	•	Under the hood, the app executes:
+```
 UPDATE expenses
 SET amount = ?, category = ?, note = ?, date = ?
 WHERE id = ?;
-
+```
 ### 🐞 Known Issues / Limitations
 	•	Date input uses a plain text field (no date-picker UI)
 	•	Category totals are based on user-entered strings
