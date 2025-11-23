@@ -43,8 +43,9 @@ npx expo start
 🖥️ iOS Simulator (Recommended)
 	•	Works perfectly without network issues
 	•	From Expo CLI: i (press i key to launch simulator)
+  ```
 
-  📊 Analytics Included
+  ### 📊 Analytics Included
 	•	Total spending dynamically updates based on filter
 	•	Spending by category
 	•	All totals update when:
@@ -55,7 +56,7 @@ npx expo start
 
 ⸻
 
-✏️ Editing Expenses
+### ✏️ Editing Expenses
 	•	Tap an existing expense row
 	•	The form auto-fills with the expense data
 	•	Modify any fields
@@ -65,7 +66,7 @@ UPDATE expenses
 SET amount = ?, category = ?, note = ?, date = ?
 WHERE id = ?;
 
-🐞 Known Issues / Limitations
+### 🐞 Known Issues / Limitations
 	•	Date input uses a plain text field (no date-picker UI)
 	•	Category totals are based on user-entered strings
 	•	e.g., Food and food count as two categories
@@ -75,7 +76,7 @@ WHERE id = ?;
 
 ⸻
 
-👨‍💻 Technology Used
+### 👨‍💻 Technology Used
 	•	React Native
 	•	Expo
 	•	SQLite via expo-sqlite
