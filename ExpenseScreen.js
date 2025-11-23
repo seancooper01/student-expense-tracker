@@ -20,6 +20,7 @@ export default function ExpenseScreen() {
   const [note, setNote] = useState('');
   const [date, setDate] = useState(new Date().toISOString().slice(0,10));
   const [filter, setFilter] = useState('ALL'); // Filter State: ALL | WEEK | MONTH 
+  const [editingId, setEditingId] = useState(null); // Track expense being edited
 
   // Helper Functions 
    const filteredExpenses = useMemo(() => {
@@ -103,12 +104,58 @@ export default function ExpenseScreen() {
     loadExpenses();
   };
 
+  // Start Editing
+  const startEdit = (expense) => {
+    setEditingId(expense.id);
+    setAmount(String(expense.amount));
+    setCategory(expense.category || "");
+    setNote(expense.note || "");
+    setDate(expense.date || new Date().toISOString().slice(0,10));
+  };
+
+  // Cancel Editing
+  const cancelEdit = () => {
+    setEditingId(null);
+    setAmount('');
+    setCategory('');
+    setNote('');
+    setDate(new Date().toISOString().slice(0,10)); 
+  };
+
+  // Update Expense
+  const saveEdit = async () => {
+    if (editingId == null) return; 
+
+    const amountNumber = parseFloat(amount); 
+    if (isNaN(amountNumber) || amountNumber <= 0) {
+      return;
+    }
+
+    const trimmedCategory = category.trim();
+    const trimmedNote = note.trim(); 
+    if (!trimmedCategory) {
+      return; 
+    }
+
+    await db.runAsync(
+      'UPDATE expenses SET amount = ?, category = ?, note = ?, date = ? WHERE id = ?;',
+      [amountNumber, trimmedCategory, trimmedNote || null, date, editingId]
+    );
+
+    cancelEdit();
+    loadExpenses();
+  };
+
     const deleteExpense = async (id) => {
     await db.runAsync('DELETE FROM expenses WHERE id = ?;', [id]);
     loadExpenses();
   };
-    const renderExpense = ({ item }) => (
-    <View style={styles.expenseRow}>
+     const renderExpense = ({ item }) => (
+    <TouchableOpacity
+      style={styles.expenseRow}
+      onPress={() => startEdit(item)}
+      activeOpacity={0.8}
+    >
       <View style={{ flex: 1 }}>
         <Text style={styles.expenseAmount}>${Number(item.amount).toFixed(2)}</Text>
         <Text style={styles.expenseCategory}>{item.category}</Text>
@@ -119,8 +166,8 @@ export default function ExpenseScreen() {
       <TouchableOpacity onPress={() => deleteExpense(item.id)}>
         <Text style={styles.delete}>✕</Text>
       </TouchableOpacity>
-    </View>
-  );
+    </TouchableOpacity>
+);
   useEffect(() => {
     async function setup() {
       await db.execAsync(`
@@ -172,7 +219,10 @@ export default function ExpenseScreen() {
           value={date}
           onChangeText={setDate}
           />
-        <Button title="Add Expense" onPress={addExpense} />
+          <Button
+          title={editingId ? "Save Changes" : "Add Expense"}
+          onPress={editingId ? saveEdit : addExpense}
+        />
       </View>
       <View style={styles.filterRow}>
         <TouchableOpacity
