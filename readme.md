@@ -26,14 +26,14 @@ All data is stored **locally** on-device using SQLite through `expo-sqlite`.
 
 ## ▶️ How to Run the App
 
-### **Requirements**
+## **Requirements**
 - Node.js + npm  
 - Expo CLI → `npm install -g expo-cli`  
 - macOS with Xcode installed (required for **iOS Simulator**)  
 
 ---
 
-### **Installation**
+## **Installation**
 ```bash
 npm install
 npx expo start
@@ -45,7 +45,8 @@ npx expo start
 	•	From Expo CLI: i (press i key to launch simulator)
   ```
 
-  ### 📊 Analytics Included
+  ## 📊 Analytics Included
+  `
 	•	Total spending dynamically updates based on filter
 	•	Spending by category
 	•	All totals update when:
@@ -54,9 +55,8 @@ npx expo start
 	•	Expenses are deleted
 	•	Filters change
 
-⸻
-
 ### ✏️ Editing Expenses
+`
 	•	Tap an existing expense row
 	•	The form auto-fills with the expense data
 	•	Modify any fields
@@ -67,6 +67,7 @@ SET amount = ?, category = ?, note = ?, date = ?
 WHERE id = ?;
 
 ### 🐞 Known Issues / Limitations
+`
 	•	Date input uses a plain text field (no date-picker UI)
 	•	Category totals are based on user-entered strings
 	•	e.g., Food and food count as two categories
@@ -74,10 +75,14 @@ WHERE id = ?;
 	•	No highlight on “currently editing” item
 	•	No validation for invalid date formats (e.g., “abc123”)
 
-⸻
-
 ### 👨‍💻 Technology Used
+`
 	•	React Native
 	•	Expo
 	•	SQLite via expo-sqlite
 	•	JavaScript (no TypeScript)
+
+```bash
+Author: Sean Cooper
+University of South Florida
+```
