@@ -10,6 +10,26 @@ import {
   StyleSheet,
 } from 'react-native';
 import { useSQLiteContext } from 'expo-sqlite';
+import { PieChart } from "react-native-chart-kit";
+import { Dimensions } from 'react-native';
+
+const chartColors = [
+  '#4f46e5',
+  '#f97316',
+  '#22c55e',
+  '#06b6d4',
+  '#eab308',
+  '#ec4899',
+  '#10b981',
+];
+
+const chartConfig = {
+  backgroundGradientFrom: '#111827',
+  backgroundGradientTo: '#111827',
+  decimalPlaces: 2,
+  color: (opacity = 1) => `rgba(255, 255, 255, ${opacity})`,
+  labelColor: (opacity = 1) => `rgba(229, 231, 235, ${opacity})`,
+};
 
 export default function ExpenseScreen() {
   const db = useSQLiteContext();
@@ -278,6 +298,28 @@ export default function ExpenseScreen() {
         )}
       </View>
 
+{/* Pie Chart */}
+        {Object.keys(categoryTotals).length > 0 && (
+          <View style={{ marginVertical: 12 }}>
+            <PieChart
+              data={Object.entries(categoryTotals).map(([cat, amt], index) => ({
+              name: `${cat}`,
+              population: amt,
+              color: chartColors[index % chartColors.length],
+              legendFontColor: "#ffffff",
+              legendFontSize: 12,
+            }))}
+              width={Dimensions.get("window").width - 32}
+              height={220}
+              chartConfig={chartConfig}
+              backgroundColor={"transparent"}
+              paddingLeft={"12"}
+              accessor="population"
+              absolute
+            />
+          </View>
+        )}
+
       <FlatList
         data={filteredExpenses}
         keyExtractor={(item) => item.id.toString()}
@@ -292,7 +334,8 @@ export default function ExpenseScreen() {
       </Text>
     </SafeAreaView>
   )}; 
-  
+
+
   const styles = StyleSheet.create({
   container: { flex: 1, padding: 16, backgroundColor: '#111827' },
   heading: {
@@ -400,5 +443,6 @@ totalsItem: {
     color: '#cbd5f5',
     fontSize: 12,
 },
+
 
 },);
